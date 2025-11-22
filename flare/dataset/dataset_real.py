@@ -179,7 +179,7 @@ class DatasetLoader(Dataset):
             camera = self.all_camera[itr % self.len_img]
             frame_name = self.frames[itr % self.len_img]
         else:
-            img, mask, skin_mask, flame_expression, flame_pose, camera, frame_name = self._parse_frame_single(itr)
+            img, mask, skin_mask, flame_expression, flame_pose, camera, frame_name = self._parse_frame(itr % self.len_img)
 
         return {
             'img' : img,

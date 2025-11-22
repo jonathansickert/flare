@@ -46,12 +46,12 @@ def _load_K_Rt_from_P(filename, P=None):
     return intrinsics, pose
 
 def _load_mask(fn):
-    alpha = imageio.imread(fn, as_gray=True) 
-    alpha = skimage.img_as_float32(alpha)
-    mask = torch.tensor(alpha / 255., dtype=torch.float32).unsqueeze(-1)
-    mask[mask < 0.5] = 0.0
-    # alpha = imageio.imread(fn) 
-    # mask = torch.Tensor(np.array(alpha) > 127.5)[:, :, 1:2].bool().int().float()
+    # alpha = imageio.imread(fn, mode="L") 
+    # alpha = skimage.img_as_float32(alpha)
+    # mask = torch.tensor(alpha / 255., dtype=torch.float32).unsqueeze(-1)
+    # mask[mask < 0.5] = 0.0
+    alpha = imageio.imread(fn) 
+    mask = torch.Tensor(np.array(alpha) > 127.5)[:, :, 1:2].bool().int().float()
     return mask
 
 def _load_img(fn):
@@ -65,7 +65,7 @@ def _load_img(fn):
     return img
 
 def _load_semantic(fn):
-    img = imageio.imread(fn, as_gray=True)
+    img = imageio.imread(fn, mode="L")
     h, w = img.shape
     semantics = np.zeros((h, w, 9))
     semantics[:, :, 0] = ((img == 1) + (img == 10) + (img == 8) + (img == 7) + (img == 14) + (img == 6) + (img == 12) + (img == 13)) >= 1 # skin, nose, ears, neck, lips

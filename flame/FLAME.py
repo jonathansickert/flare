@@ -24,7 +24,7 @@ from .lbs import *
 from pytorch3d.io import load_obj
 import open3d as o3d
 
-FLAME_MOUTH_MESH = 'assets/canonical_eye_smpl.obj'
+FLAME_MOUTH_MESH = '/home/jsickert/adl4cv/adl4cv_ws25-26_Relightable-Avatars/flare/assets/canonical_eye_smpl.obj'
 
 def to_tensor(array, dtype=torch.float32):
     if 'torch.tensor' not in str(type(array)):

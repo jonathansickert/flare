@@ -116,7 +116,7 @@ class EnvironmentLight(torch.nn.Module):
         NdotV = torch.clamp(util.dot(wo, canon_norm), min=1e-4)
         fg_uv = torch.cat((NdotV, roughness), dim=-1)
         if not hasattr(self, '_FG_LUT'):
-            self._FG_LUT = torch.as_tensor(np.fromfile('assets/bsdf_256_256.bin', dtype=np.float32).reshape(1, 256, 256, 2), dtype=torch.float32, device='cuda')
+            self._FG_LUT = torch.as_tensor(np.fromfile('/home/jsickert/adl4cv/adl4cv_ws25-26_Relightable-Avatars/flare/assets/bsdf_256_256.bin', dtype=np.float32).reshape(1, 256, 256, 2), dtype=torch.float32, device='cuda')
         fg_lookup = dr.texture(self._FG_LUT, fg_uv, filter_mode='linear', boundary_mode='clamp')
 
         # Roughness adjusted specular env lookup
@@ -161,7 +161,7 @@ class EnvironmentLight(torch.nn.Module):
         NdotV = torch.clamp(util.dot(wo, canon_norm), min=1e-4)
         fg_uv = torch.cat((NdotV, roughness), dim=-1)
         if not hasattr(self, '_FG_LUT'):
-            self._FG_LUT = torch.as_tensor(np.fromfile('assets/bsdf_256_256.bin', dtype=np.float32).reshape(1, 256, 256, 2), dtype=torch.float32, device='cuda')
+            self._FG_LUT = torch.as_tensor(np.fromfile('/home/jsickert/adl4cv/adl4cv_ws25-26_Relightable-Avatars/flare/assets/bsdf_256_256.bin', dtype=np.float32).reshape(1, 256, 256, 2), dtype=torch.float32, device='cuda')
         ## self._FG_LUT is (256, 256, 2) and we sample (wo * n_d) and roughness from here
         fg_lookup = dr.texture(self._FG_LUT, fg_uv, filter_mode='linear', boundary_mode='clamp')
 
