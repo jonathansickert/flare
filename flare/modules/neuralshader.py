@@ -125,6 +125,7 @@ class NeuralShader(torch.nn.Module):
 
         # ========= specular shading shading ===========
         color, buffers = light.shade_pbr_ipe(deformed_position, shading, self.dir_enc_func, self.light_mlp, normal_bend, kd, kr, view_dir, ko, normal_bend, fresnel_constant)
+        buffers['irradiance'] = shading # add it to calculate diffusion loss later
 
         return color, kd, buffers
 

@@ -41,4 +41,8 @@ class Dataset(torch.utils.data.Dataset):
             'camera': list([item['camera'] for item in batch]),
             'frame_name': list([item['frame_name'] for item in batch]),
             'idx': torch.LongTensor(list([item['idx'] for item in batch])).to(device),
+            'diffusion_albedo': torch.cat(list([item['diffusion_albedo'] for item in batch]), dim=0).to(device),
+            'diffusion_roughness': torch.cat(list([item['diffusion_roughness'] for item in batch]), dim=0).to(device),
+            'diffusion_normal': torch.cat(list([item['diffusion_normal'] for item in batch]), dim=0).to(device),
+            'diffusion_irradiance': torch.cat(list([item['diffusion_irradiance'] for item in batch]), dim=0).to(device),
         }
