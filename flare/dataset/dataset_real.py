@@ -33,6 +33,7 @@ class DatasetLoader(Dataset):
         self.base_dir = args.working_dir / args.input_dir
         self.pre_load = pre_load
         self.subject = self.base_dir.stem
+        self.diffusion_dir = args.diffusion_dir
 
         self.json_dict = {"frames": []}
         for dir in self.train_dir: 
@@ -50,7 +51,7 @@ class DatasetLoader(Dataset):
         else:
             self.all_img_path = self.json_dict["frames"]
 
-        self.len_img = len(self.all_img_path)
+        self.len_img = len(self.all_img_path) - 1 # flare dataset does not contain an image 0.png
         test_path = self.base_dir / self.all_img_path[0]["dir"] / Path(self.all_img_path[0]["file_path"] + ".png")
         self.resolution = _load_img(test_path).shape[0:2]
 
@@ -167,9 +168,10 @@ class DatasetLoader(Dataset):
         return img[None, ...], mask[None, ...], semantic[None, ...], flame_expression[None, ...], flame_pose[None, ...], camera, frame_name # Add batch dimension
 
     def __len__(self):
-        return self.len_img
+        return self.len_img -1 # flare dataset does not contain an image 0.png
 
     def __getitem__(self, itr):
+        # preloading is broken to some extend yet to be determined
         if self.pre_load:
             img = self.all_images[itr % self.len_img]
             mask = self.all_masks[itr % self.len_img]
@@ -179,8 +181,8 @@ class DatasetLoader(Dataset):
             camera = self.all_camera[itr % self.len_img]
             frame_name = self.frames[itr % self.len_img]
         else:
-            img, mask, skin_mask, flame_expression, flame_pose, camera, frame_name = self._parse_frame(itr % self.len_img)
-
+            img, mask, skin_mask, flame_expression, flame_pose, camera, frame_name = self._parse_frame_single(itr % self.len_im)
+        diff_albedo, diff_normal, diff_roughness, diff_irradiance = self._parse_diffusion_channels(itr % self.len_im)
         return {
             'img' : img,
             'mask' : mask,
@@ -189,18 +191,35 @@ class DatasetLoader(Dataset):
             'flame_expression' : flame_expression,
             'camera' : camera,
             'frame_name': frame_name,
-            'idx': itr % self.len_img
+            'idx': itr % self.len_img,
+            'diffusion_albedo': diff_albedo,
+            'diffusion_roughness': diff_roughness,
+            'diffusion_normal': diff_normal,
+            'diffusion_irradiance': diff_irradiance,
         }
+    
+    def _parse_diffusion_channels(self, idx):
+        json_dict = self.all_img_path[idx]
+        img_id = json_dict["file_path"].split('/')[-1]
+        albedo_path = self.diffusion_dir / self.all_img_path[idx]["dir"] / Path(f'albedo/{img_id}.png')
+        normal_path = self.diffusion_dir / self.all_img_path[idx]["dir"] / Path(f'normal/{img_id}.png')
+        roughness_path = self.diffusion_dir / self.all_img_path[idx]["dir"] / Path(f'roughness/{img_id}.png')
+        irradiance_path = self.diffusion_dir / self.all_img_path[idx]["dir"] / Path(f'irradiance/{img_id}.png')
+        albedo = _load_img(albedo_path)
+        normal = _load_img(normal_path)
+        roughness = _load_img(roughness_path)
+        irradiance = _load_img(irradiance_path)
+        return albedo[None, ...], normal[None, ...], roughness[None, ...], irradiance[None, ...] # add batch dimension
+
 
     def _parse_frame_single(self, idx):
         ''' helper function to parse a single frame and test/debug
         '''
-
+        idx += 1 # flare dataset does not contain an image 0.png
         json_dict = {}
         for frame in self.all_img_path:
             if Path(frame["file_path"]) == Path('./image/' +  f'{idx}'):
                 json_dict = frame.copy()
-        
         assert Path(json_dict["file_path"]) == Path('./image/' +  f'{idx}')
         img_path = self.base_dir / json_dict["dir"] / Path(json_dict["file_path"] + ".png")
         
@@ -237,6 +256,8 @@ class DatasetLoader(Dataset):
         R *= -1 
         t = world_mat[:3, 3]
         camera = Camera(self.K, R, t, device=device)
+
+        # ================ diffusion intrinsic channels =======================
 
         frame_name = img_path.stem
         return img[None, ...], mask[None, ...], semantic[None, ...], flame_expression[None, ...], flame_pose[None, ...], camera, frame_name # Add batch dimension

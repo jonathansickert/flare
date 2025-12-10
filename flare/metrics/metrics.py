@@ -302,7 +302,7 @@ def run(output_dir, gt_dir, subfolders, load_npz=False):
 
                 if no_cloth_mask:
                     def load_semantic(path, img_res):
-                        img = imageio.imread(path, mode="L")
+                        img = imageio.imread(path, mode='L')
                         img = cv2.resize(img, (int(img_res), int(img_res)))
                         return img
                     semantic_path = osp.join(os.path.join(gt_dir, subfolder, "semantic", filename_nopad))
