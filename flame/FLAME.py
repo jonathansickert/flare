@@ -40,7 +40,7 @@ for base in candidates:
 else:
     raise FileNotFoundError("None of the expected base directories exist.")
 
-FLAME_MOUTH_MESH = f'{base_dir}/external/flare_adl4cv/assets/canonical_eye_smpl.obj'
+FLAME_MOUTH_MESH = f'{base_dir}/flare/assets/canonical_eye_smpl.obj'
 
 def to_tensor(array, dtype=torch.float32):
     if 'torch.tensor' not in str(type(array)):

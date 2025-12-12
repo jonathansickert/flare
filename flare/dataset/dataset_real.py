@@ -181,8 +181,8 @@ class DatasetLoader(Dataset):
             camera = self.all_camera[itr % self.len_img]
             frame_name = self.frames[itr % self.len_img]
         else:
-            img, mask, skin_mask, flame_expression, flame_pose, camera, frame_name = self._parse_frame_single(itr % self.len_im)
-        diff_albedo, diff_normal, diff_roughness, diff_irradiance = self._parse_diffusion_channels(itr % self.len_im)
+            img, mask, skin_mask, flame_expression, flame_pose, camera, frame_name = self._parse_frame_single(itr % self.len_img)
+        diff_albedo, diff_normal, diff_roughness, diff_irradiance = self._parse_diffusion_channels(itr % self.len_img)
         return {
             'img' : img,
             'mask' : mask,
@@ -199,17 +199,19 @@ class DatasetLoader(Dataset):
         }
     
     def _parse_diffusion_channels(self, idx):
-        json_dict = self.all_img_path[idx]
-        img_id = json_dict["file_path"].split('/')[-1]
-        albedo_path = self.diffusion_dir / self.all_img_path[idx]["dir"] / Path(f'albedo/{img_id}.png')
-        normal_path = self.diffusion_dir / self.all_img_path[idx]["dir"] / Path(f'normal/{img_id}.png')
-        roughness_path = self.diffusion_dir / self.all_img_path[idx]["dir"] / Path(f'roughness/{img_id}.png')
-        irradiance_path = self.diffusion_dir / self.all_img_path[idx]["dir"] / Path(f'irradiance/{img_id}.png')
-        albedo = _load_img(albedo_path)
-        normal = _load_img(normal_path)
-        roughness = _load_img(roughness_path)
-        irradiance = _load_img(irradiance_path)
-        return albedo[None, ...], normal[None, ...], roughness[None, ...], irradiance[None, ...] # add batch dimension
+        if self.diffusion_dir:
+            json_dict = self.all_img_path[idx]
+            img_id = json_dict["file_path"].split('/')[-1]
+            albedo_path = self.diffusion_dir / self.all_img_path[idx]["dir"] / Path(f'albedo/{img_id}.png')
+            normal_path = self.diffusion_dir / self.all_img_path[idx]["dir"] / Path(f'normal/{img_id}.png')
+            roughness_path = self.diffusion_dir / self.all_img_path[idx]["dir"] / Path(f'roughness/{img_id}.png')
+            irradiance_path = self.diffusion_dir / self.all_img_path[idx]["dir"] / Path(f'irradiance/{img_id}.png')
+            albedo = _load_img(albedo_path)
+            normal = _load_img(normal_path)
+            roughness = _load_img(roughness_path)
+            irradiance = _load_img(irradiance_path)
+            return albedo[None, ...], normal[None, ...], roughness[None, ...], irradiance[None, ...] # add batch dimension
+        return torch.zeros((2, 512, 512, 3)),  torch.zeros((2, 512, 512, 3)), torch.zeros((2, 512, 512, 3)),  torch.zeros((2, 512, 512, 3))
 
 
     def _parse_frame_single(self, idx):
