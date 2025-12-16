@@ -223,7 +223,7 @@ class DatasetLoader(Dataset):
             else:
                 irradiance = torch.zeros((2, 512, 512, 3))
             return albedo[None, ...], normal[None, ...], roughness[None, ...], irradiance[None, ...] # add batch dimension
-        return torch.zeros((2, 512, 512, 3)),  torch.zeros((2, 512, 512, 3)), torch.zeros((2, 512, 512, 3)),  torch.zeros((2, 512, 512, 3))
+        return torch.zeros((1, 512, 512, 3)),  torch.zeros((1, 512, 512, 3)), torch.zeros((1, 512, 512, 3)),  torch.zeros((1, 512, 512, 3))
 
 
     def _parse_frame_single(self, idx):
