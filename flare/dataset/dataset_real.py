@@ -206,10 +206,22 @@ class DatasetLoader(Dataset):
             normal_path = self.diffusion_dir / self.all_img_path[idx]["dir"] / Path(f'normal/{img_id}.png')
             roughness_path = self.diffusion_dir / self.all_img_path[idx]["dir"] / Path(f'roughness/{img_id}.png')
             irradiance_path = self.diffusion_dir / self.all_img_path[idx]["dir"] / Path(f'irradiance/{img_id}.png')
-            albedo = _load_img(albedo_path)
-            normal = _load_img(normal_path)
-            roughness = _load_img(roughness_path)
-            irradiance = _load_img(irradiance_path)
+            if albedo_path.exists():
+                albedo = _load_img(albedo_path)
+            else:
+                albedo = torch.zeros((2, 512, 512, 3))
+            if normal_path.exists():
+                normal = _load_img(normal_path)
+            else:
+                normal = torch.zeros((2, 512, 512, 3))
+            if roughness_path.exists():
+                roughness = _load_img(roughness_path)
+            else:
+                roughness = torch.zeros((2, 512, 512, 3))
+            if irradiance_path.exists():
+                irradiance = _load_img(irradiance_path)
+            else:
+                irradiance = torch.zeros((2, 512, 512, 3))
             return albedo[None, ...], normal[None, ...], roughness[None, ...], irradiance[None, ...] # add batch dimension
         return torch.zeros((2, 512, 512, 3)),  torch.zeros((2, 512, 512, 3)), torch.zeros((2, 512, 512, 3)),  torch.zeros((2, 512, 512, 3))
 
