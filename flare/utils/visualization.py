@@ -135,7 +135,7 @@ def visualize_training(shaded_image, cbuffers, debug_gbuffer, debug_view, images
     shading = shading.reshape(debug_gbuffer["normal"].shape)
     shading = shading * gbuffer_mask 
 
-    save_individual_img(shaded_image, debug_view, normal_image, gbuffer_mask, cbuffers, grid_path_each)
+    save_individual_img(shaded_image, debug_view, normal_image, gbuffer_mask, cbuffers, grid_path_each, iteration)
     color_list = []
     color_list += [list_torchgrid(convert_uint(debug_view["img"]), grid_path, save_name=None, nrow=1, save=False, scale_factor=1).unsqueeze(0)]
     color_list += [list_torchgrid(convert_uint(shaded_image), grid_path, save_name=None, nrow=1, save=False, scale_factor=1).unsqueeze(0)]
@@ -179,7 +179,7 @@ def save_relit_intrinsic_materials(relit_imgs, views, gbuffer_mask, buffers, ima
             imageio.imsave(images_save_path / f"env_map_{i}" / f'{id:05d}.png', convert_uint_wo_mask(relit_imgs[i][j])) 
 
 
-def save_individual_img(rgb_pred, views, normals, gbuffer_mask, buffers, images_save_path):
+def save_individual_img(rgb_pred, views, normals, gbuffer_mask, buffers, images_save_path, iteration):
     convert_uint = lambda x: np.clip(np.rint(dataset_util.rgb_to_srgb(x).numpy() * 255.0), 0, 255).astype(np.uint8) 
     convert_uint_255 = lambda x: (x * 255).to(torch.uint8)
 
@@ -192,10 +192,10 @@ def save_individual_img(rgb_pred, views, normals, gbuffer_mask, buffers, images_
         id = int(views["frame_name"][i])
 
         # rgb prediction
-        imageio.imsave(images_save_path / "rgb" / f'{id:05d}.png', convert_uint(torch.cat([rgb_pred[i].cpu(), mask], -1))) 
+        imageio.imsave(images_save_path / "rgb" / f'it_{iteration}_{id:05d}.png', convert_uint(torch.cat([rgb_pred[i].cpu(), mask], -1))) 
 
 
         ##normal
         normal = (normals[i] + 1.) / 2.
         normal = torch.cat([normal.cpu(), mask], -1)
-        imageio.imsave(images_save_path / "normal" / f'{id:05d}.png', convert_uint_255(normal))
+        imageio.imsave(images_save_path / "normal" / f'it_{iteration}_{id:05d}.png', convert_uint_255(normal))
