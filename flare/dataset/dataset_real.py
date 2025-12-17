@@ -209,21 +209,21 @@ class DatasetLoader(Dataset):
             if albedo_path.exists():
                 albedo = _load_img(albedo_path)
             else:
-                albedo = torch.zeros((2, 512, 512, 3))
+                albedo = torch.zeros((512, 512, 3))
             if normal_path.exists():
                 normal = _load_img(normal_path)
             else:
-                normal = torch.zeros((2, 512, 512, 3))
+                normal = torch.zeros((512, 512, 3))
             if roughness_path.exists():
                 roughness = _load_img(roughness_path)
             else:
-                roughness = torch.zeros((2, 512, 512, 3))
+                roughness = torch.zeros((512, 512, 3))
             if irradiance_path.exists():
                 irradiance = _load_img(irradiance_path)
             else:
-                irradiance = torch.zeros((2, 512, 512, 3))
+                irradiance = torch.zeros((512, 512, 3))
             return albedo[None, ...], normal[None, ...], roughness[None, ...], irradiance[None, ...] # add batch dimension
-        return torch.zeros((1, 512, 512, 3)),  torch.zeros((1, 512, 512, 3)), torch.zeros((1, 512, 512, 3)),  torch.zeros((1, 512, 512, 3))
+        return torch.zeros((2, 512, 512, 3)),  torch.zeros((2, 512, 512, 3)), torch.zeros((2, 512, 512, 3)),  torch.zeros((2, 512, 512, 3))
 
 
     def _parse_frame_single(self, idx):
